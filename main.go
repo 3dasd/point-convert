@@ -37,7 +37,7 @@ func convertLine(line string) string {
 		log.Fatal(err)
 	}
 
-	x := d * math.Cos(b) * math.Sin(a)
+	x := -d * math.Cos(b) * math.Sin(a)
 	y := d * math.Cos(b) * math.Cos(a)
 	z := d * math.Sin(b)
 
@@ -62,5 +62,5 @@ func convertFile(fileName string) {
 }
 
 func main() {
-	convertFile("/home/dvoros/Documents/points-10rows.txt")
+	convertFile("/home/dvoros/Documents/points-xmas.txt")
 }
