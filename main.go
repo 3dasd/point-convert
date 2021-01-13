@@ -41,7 +41,21 @@ func convertLine(line string) string {
 	y := d * math.Cos(b) * math.Cos(a)
 	z := d * math.Sin(b)
 
-	return fmt.Sprintf("%f %f %f 0 0 0 0", x, y, z)
+	return fmt.Sprintf("%f %f %f", x, y, z)
+}
+
+func printPCDHeader() {
+	fmt.Println(`# .PCD v.7 - Point Cloud Data file format
+VERSION .7
+FIELDS x y z
+SIZE 4 4 4
+TYPE F F F
+COUNT 1 1 1
+WIDTH 1600
+HEIGHT 301
+VIEWPOINT 0 0 0 1 0 0 0
+POINTS 481600
+DATA ascii`)
 }
 
 func convertFile(fileName string) {
@@ -49,6 +63,8 @@ func convertFile(fileName string) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	printPCDHeader()
 
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
@@ -62,5 +78,12 @@ func convertFile(fileName string) {
 }
 
 func main() {
-	convertFile("/home/dvoros/Documents/points-xmas.txt")
+	args := os.Args[1:]
+
+	if len(args) != 1 {
+		fmt.Fprintln(os.Stderr, "need exactly one argument: file to convert")
+		os.Exit(1)
+	}
+
+	convertFile(args[0])
 }
