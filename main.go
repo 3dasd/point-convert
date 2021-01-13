@@ -41,7 +41,7 @@ func convertLine(line string) string {
 	y := d * math.Cos(b) * math.Cos(a)
 	z := d * math.Sin(b)
 
-	return fmt.Sprintf("%f %f %f", x, y, z)
+	return fmt.Sprintf("%f %f %f", x/100, y/100, z/100)
 }
 
 func printPCDHeader() {
