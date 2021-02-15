@@ -1,4 +1,4 @@
-project_name: lidar-diver
+project_name: point-convert
 builds:
   - env: [CGO_ENABLED=0]
     goos:
