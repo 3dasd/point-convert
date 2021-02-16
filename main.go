@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"html/template"
 	"log"
@@ -23,7 +24,7 @@ var params = Params{}
 
 var headerLine = regexp.MustCompile(`^#\s*(\S+)+ (\S+)$`)
 
-func convertLine(line string) string {
+func convertLine(line string, outputFormat string) string {
 	fields := strings.Split(line, ",")
 	if len(fields) != 4 {
 		log.Fatalf("invalid line: %s", line)
@@ -51,7 +52,15 @@ func convertLine(line string) string {
 	y := d * math.Cos(b) * math.Cos(a)
 	z := d * math.Sin(b)
 
-	return fmt.Sprintf("%f %f %f", x/100, y/100, z/100)
+	switch outputFormat {
+	case "pcd":
+		return fmt.Sprintf("%f %f %f", x/100, y/100, z/100)
+	case "asc":
+		return fmt.Sprintf("%f %f %f 0 0 0 0", x/100, y/100, z/100)
+	default:
+		log.Fatalf("unknown format: %s\n", outputFormat)
+		return ""
+	}
 }
 
 func printPCDHeader(p Params) {
@@ -111,7 +120,7 @@ func processHeader(line string) {
 	}
 }
 
-func convertFile(fileName string) {
+func convertFile(fileName string, outputFormat string) {
 	f, err := os.Open(fileName)
 	if err != nil {
 		log.Fatal(err)
@@ -124,11 +133,11 @@ func convertFile(fileName string) {
 		if strings.HasPrefix(t, "#") {
 			processHeader(t)
 		} else {
-			if firstPoint {
+			if firstPoint && outputFormat == "pcd" {
 				printPCDHeader(params)
 				firstPoint = false
 			}
-			l := convertLine(scanner.Text())
+			l := convertLine(scanner.Text(), outputFormat)
 			fmt.Println(l)
 		}
 	}
@@ -138,13 +147,19 @@ func convertFile(fileName string) {
 	}
 }
 
-func main() {
-	args := os.Args[1:]
+var inputFile = flag.String("input", "", "Input .asdp file to convert.")
+var outputFormat = flag.String("outputFormat", "pcd", "Output format. Must be either 'asc' or 'pcd'.")
 
-	if len(args) != 1 {
-		fmt.Fprintln(os.Stderr, "need exactly one argument: file to convert")
-		os.Exit(1)
+func main() {
+	flag.Parse()
+
+	if *inputFile == "" {
+		log.Fatal("Must provide input file name with --input.")
 	}
 
-	convertFile(args[0])
+	if *outputFormat != "asc" && *outputFormat != "pcd" {
+		log.Fatal("Output format must be either 'asc' or 'pcd'.")
+	}
+
+	convertFile(*inputFile, *outputFormat)
 }
