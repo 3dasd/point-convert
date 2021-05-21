@@ -44,6 +44,8 @@ func convertLine(line string, outputFormat string) string {
 	b := math.Pi * 2.0 * (float64(r) / float64(params.YResolution))
 
 	d, err := strconv.ParseFloat(fields[3], 64)
+	d = math.Max(d-1.7, 0) // Compensating for LIDAR distance from shaft
+
 	if err != nil {
 		log.Fatal(err)
 	}
